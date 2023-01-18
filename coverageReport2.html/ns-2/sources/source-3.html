@@ -1,0 +1,512 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > JsonDiff</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.github.fge.jsonpatch.diff</a>
+</div>
+
+<h1>Coverage Summary for Class: JsonDiff (com.github.fge.jsonpatch.diff)</h1>
+
+<table class="coverageStats">
+
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">JsonDiff</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (11/11)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    79.2%
+  </span>
+  <span class="absValue">
+    (80/101)
+  </span>
+</td>
+</tr>
+  <tr>
+    <td class="name">JsonDiff$1</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (1/1)
+  </span>
+</td>
+  </tr>
+<tr>
+  <td class="name"><strong>Total</strong></td>
+<td class="coverageStat">
+  <span class="percent">
+    100%
+  </span>
+  <span class="absValue">
+    (12/12)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    79.4%
+  </span>
+  <span class="absValue">
+    (81/102)
+  </span>
+</td>
+</tr>
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;/*
+<i class="no-highlight">2</i>&nbsp; * Copyright (c) 2014, Francis Galiegue (fgaliegue@gmail.com)
+<i class="no-highlight">3</i>&nbsp; *
+<i class="no-highlight">4</i>&nbsp; * This software is dual-licensed under:
+<i class="no-highlight">5</i>&nbsp; *
+<i class="no-highlight">6</i>&nbsp; * - the Lesser General Public License (LGPL) version 3.0 or, at your option, any
+<i class="no-highlight">7</i>&nbsp; *   later version;
+<i class="no-highlight">8</i>&nbsp; * - the Apache Software License (ASL) version 2.0.
+<i class="no-highlight">9</i>&nbsp; *
+<i class="no-highlight">10</i>&nbsp; * The text of this file and of both licenses is available at the root of this
+<i class="no-highlight">11</i>&nbsp; * project or, if you have the jar distribution, in directory META-INF/, under
+<i class="no-highlight">12</i>&nbsp; * the names LGPL-3.0.txt and ASL-2.0.txt respectively.
+<i class="no-highlight">13</i>&nbsp; *
+<i class="no-highlight">14</i>&nbsp; * Direct link to the sources:
+<i class="no-highlight">15</i>&nbsp; *
+<i class="no-highlight">16</i>&nbsp; * - LGPL 3.0: https://www.gnu.org/licenses/lgpl-3.0.txt
+<i class="no-highlight">17</i>&nbsp; * - ASL 2.0: http://www.apache.org/licenses/LICENSE-2.0.txt
+<i class="no-highlight">18</i>&nbsp; */
+<i class="no-highlight">19</i>&nbsp;
+<i class="no-highlight">20</i>&nbsp;package com.github.fge.jsonpatch.diff;
+<i class="no-highlight">21</i>&nbsp;
+<i class="no-highlight">22</i>&nbsp;
+<i class="no-highlight">23</i>&nbsp;import com.fasterxml.jackson.core.JsonProcessingException;
+<i class="no-highlight">24</i>&nbsp;import com.fasterxml.jackson.databind.JsonNode;
+<i class="no-highlight">25</i>&nbsp;import com.fasterxml.jackson.databind.ObjectMapper;
+<i class="no-highlight">26</i>&nbsp;import com.fasterxml.jackson.databind.node.ArrayNode;
+<i class="no-highlight">27</i>&nbsp;import com.fasterxml.jackson.databind.node.ObjectNode;
+<i class="no-highlight">28</i>&nbsp;import com.github.fge.jackson.JacksonUtils;
+<i class="no-highlight">29</i>&nbsp;import com.github.fge.jackson.JsonNumEquals;
+<i class="no-highlight">30</i>&nbsp;import com.github.fge.jackson.NodeType;
+<i class="no-highlight">31</i>&nbsp;import com.github.fge.jackson.jsonpointer.JsonPointer;
+<i class="no-highlight">32</i>&nbsp;import com.github.fge.jsonpatch.JsonPatch;
+<i class="no-highlight">33</i>&nbsp;import com.github.fge.jsonpatch.JsonPatchMessages;
+<i class="no-highlight">34</i>&nbsp;import com.github.fge.msgsimple.bundle.MessageBundle;
+<i class="no-highlight">35</i>&nbsp;import com.github.fge.msgsimple.load.MessageBundles;
+<i class="no-highlight">36</i>&nbsp;
+<i class="no-highlight">37</i>&nbsp;import javax.annotation.ParametersAreNonnullByDefault;
+<i class="no-highlight">38</i>&nbsp;import javax.json.JsonObject;
+<i class="no-highlight">39</i>&nbsp;
+<i class="no-highlight">40</i>&nbsp;import java.io.IOException;
+<i class="no-highlight">41</i>&nbsp;import java.util.*;
+<i class="no-highlight">42</i>&nbsp;
+<i class="no-highlight">43</i>&nbsp;/**
+<i class="no-highlight">44</i>&nbsp; * JSON &quot;diff&quot; implementation
+<i class="no-highlight">45</i>&nbsp; *
+<i class="no-highlight">46</i>&nbsp; * &lt;p&gt;This class generates a JSON Patch (as in, an RFC 6902 JSON Patch) given
+<i class="no-highlight">47</i>&nbsp; * two JSON values as inputs. The patch can be obtained directly as a {@link
+<i class="no-highlight">48</i>&nbsp; * JsonPatch} or as a {@link JsonNode}.&lt;/p&gt;
+<i class="no-highlight">49</i>&nbsp; *
+<i class="no-highlight">50</i>&nbsp; * &lt;p&gt;Note: there is &lt;b&gt;no guarantee&lt;/b&gt; about the usability of the generated
+<i class="no-highlight">51</i>&nbsp; * patch for any other source/target combination than the one used to generate
+<i class="no-highlight">52</i>&nbsp; * the patch.&lt;/p&gt;
+<i class="no-highlight">53</i>&nbsp; *
+<i class="no-highlight">54</i>&nbsp; * &lt;p&gt;This class always performs operations in the following order: removals,
+<i class="no-highlight">55</i>&nbsp; * additions and replacements. It then factors removal/addition pairs into
+<i class="no-highlight">56</i>&nbsp; * move operations, or copy operations if a common element exists, at the same
+<i class="no-highlight">57</i>&nbsp; * {@link JsonPointer pointer}, in both the source and destination.&lt;/p&gt;
+<i class="no-highlight">58</i>&nbsp; *
+<i class="no-highlight">59</i>&nbsp; * &lt;p&gt;You can obtain a diff either as a {@link JsonPatch} directly or, for
+<i class="no-highlight">60</i>&nbsp; * backwards compatibility, as a {@link JsonNode}.&lt;/p&gt;
+<i class="no-highlight">61</i>&nbsp; *
+<i class="no-highlight">62</i>&nbsp; * @since 1.2
+<i class="no-highlight">63</i>&nbsp; */
+<i class="no-highlight">64</i>&nbsp;@ParametersAreNonnullByDefault
+<i class="no-highlight">65</i>&nbsp;public final class JsonDiff
+<i class="no-highlight">66</i>&nbsp;{
+<b class="fc"><i class="no-highlight">67</i>&nbsp;    private static final MessageBundle BUNDLE</b>
+<b class="fc"><i class="no-highlight">68</i>&nbsp;        = MessageBundles.getBundle(JsonPatchMessages.class);</b>
+<b class="fc"><i class="no-highlight">69</i>&nbsp;    private static final ObjectMapper MAPPER = JacksonUtils.newMapper();</b>
+<i class="no-highlight">70</i>&nbsp;
+<i class="no-highlight">71</i>&nbsp;    private static final JsonNumEquals EQUIVALENCE
+<b class="fc"><i class="no-highlight">72</i>&nbsp;        = JsonNumEquals.getInstance();</b>
+<i class="no-highlight">73</i>&nbsp;
+<i class="no-highlight">74</i>&nbsp;    private JsonDiff()
+<i class="no-highlight">75</i>&nbsp;    {
+<i class="no-highlight">76</i>&nbsp;    }
+<i class="no-highlight">77</i>&nbsp;
+<i class="no-highlight">78</i>&nbsp;    /**
+<i class="no-highlight">79</i>&nbsp;     * Generate a JSON patch for transforming the source node into the target
+<i class="no-highlight">80</i>&nbsp;     * node
+<i class="no-highlight">81</i>&nbsp;     *
+<i class="no-highlight">82</i>&nbsp;     * @param source the node to be patched
+<i class="no-highlight">83</i>&nbsp;     * @param target the expected result after applying the patch
+<i class="no-highlight">84</i>&nbsp;     * @param map checking attributes
+<i class="no-highlight">85</i>&nbsp;     * @return the patch as a {@link JsonPatch}
+<i class="no-highlight">86</i>&nbsp;     *
+<i class="no-highlight">87</i>&nbsp;     * @since 1.9
+<i class="no-highlight">88</i>&nbsp;     */
+<i class="no-highlight">89</i>&nbsp;    public static JsonPatch asJsonPatch(final JsonNode source,
+<i class="no-highlight">90</i>&nbsp;                                        final JsonNode target,
+<i class="no-highlight">91</i>&nbsp;                                        final Map&lt;JsonPointer, Set&lt;String&gt;&gt; map)
+<i class="no-highlight">92</i>&nbsp;            throws JsonProcessingException {
+<i class="no-highlight">93</i>&nbsp;
+<b class="fc"><i class="no-highlight">94</i>&nbsp;        BUNDLE.checkNotNull(source, &quot;common.nullArgument&quot;);</b>
+<b class="fc"><i class="no-highlight">95</i>&nbsp;        BUNDLE.checkNotNull(target, &quot;common.nullArgument&quot;);</b>
+<i class="no-highlight">96</i>&nbsp;
+<b class="fc"><i class="no-highlight">97</i>&nbsp;        DiffProcessor processor = null;</b>
+<i class="no-highlight">98</i>&nbsp;
+<b class="fc"><i class="no-highlight">99</i>&nbsp;        for (Map.Entry&lt;JsonPointer, Set&lt;String&gt;&gt; me : map.entrySet()) {</b>
+<i class="no-highlight">100</i>&nbsp;
+<b class="fc"><i class="no-highlight">101</i>&nbsp;            Set&lt;String&gt; s = me.getValue();</b>
+<i class="no-highlight">102</i>&nbsp;
+<b class="fc"><i class="no-highlight">103</i>&nbsp;            ArrayNode array = (ArrayNode) source.get(&quot;Entitlements&quot;);</b>
+<i class="no-highlight">104</i>&nbsp;
+<b class="fc"><i class="no-highlight">105</i>&nbsp;            boolean flag = false;</b>
+<b class="fc"><i class="no-highlight">106</i>&nbsp;            for (int i = 0; i &lt; array.size(); i++)</b>
+<i class="no-highlight">107</i>&nbsp;            {
+<b class="fc"><i class="no-highlight">108</i>&nbsp;                for (String value : s)</b>
+<i class="no-highlight">109</i>&nbsp;                {
+<b class="fc"><i class="no-highlight">110</i>&nbsp;                    if (array.get(i).get(value) == null)</b>
+<i class="no-highlight">111</i>&nbsp;                    {
+<b class="nc"><i class="no-highlight">112</i>&nbsp;                        flag = true;</b>
+<i class="no-highlight">113</i>&nbsp;                    }
+<b class="fc"><i class="no-highlight">114</i>&nbsp;                }</b>
+<i class="no-highlight">115</i>&nbsp;            }
+<i class="no-highlight">116</i>&nbsp;
+<b class="fc"><i class="no-highlight">117</i>&nbsp;            if (!flag) {</b>
+<i class="no-highlight">118</i>&nbsp;                //then do ...
+<b class="fc"><i class="no-highlight">119</i>&nbsp;                final Map&lt;JsonPointer, JsonNode&gt; unchanged = getUnchangedValues(source, target);</b>
+<b class="fc"><i class="no-highlight">120</i>&nbsp;                processor = new DiffProcessor(unchanged);</b>
+<i class="no-highlight">121</i>&nbsp;
+<b class="fc"><i class="no-highlight">122</i>&nbsp;                generateDiffs(processor, JsonPointer.empty(), source, target, source);</b>
+<i class="no-highlight">123</i>&nbsp;
+<b class="fc"><i class="no-highlight">124</i>&nbsp;            } else {</b>
+<i class="no-highlight">125</i>&nbsp;                //then do ...
+<b class="nc"><i class="no-highlight">126</i>&nbsp;                System.out.println(&quot;3 attributes are not present in the entitlement node&quot;);</b>
+<i class="no-highlight">127</i>&nbsp;            }
+<b class="fc"><i class="no-highlight">128</i>&nbsp;        }</b>
+<b class="fc"><i class="no-highlight">129</i>&nbsp;        return processor.getPatch();</b>
+<i class="no-highlight">130</i>&nbsp;    }
+<i class="no-highlight">131</i>&nbsp;
+<i class="no-highlight">132</i>&nbsp;    /**
+<i class="no-highlight">133</i>&nbsp;     * Generate a JSON patch for transforming the source node into the target
+<i class="no-highlight">134</i>&nbsp;     * node
+<i class="no-highlight">135</i>&nbsp;     *
+<i class="no-highlight">136</i>&nbsp;     * @param source the node to be patched
+<i class="no-highlight">137</i>&nbsp;     * @param target the expected result after applying the patch
+<i class="no-highlight">138</i>&nbsp;     * @return the patch as a {@link JsonPatch}
+<i class="no-highlight">139</i>&nbsp;     *
+<i class="no-highlight">140</i>&nbsp;     * @since 1.9
+<i class="no-highlight">141</i>&nbsp;     */
+<i class="no-highlight">142</i>&nbsp;   /* public static JsonPatch asJsonPatch(final JsonNode source,
+<i class="no-highlight">143</i>&nbsp;        final JsonNode target) throws JsonProcessingException
+<i class="no-highlight">144</i>&nbsp;    {
+<i class="no-highlight">145</i>&nbsp;        BUNDLE.checkNotNull(source, &quot;common.nullArgument&quot;);
+<i class="no-highlight">146</i>&nbsp;        BUNDLE.checkNotNull(target, &quot;common.nullArgument&quot;);
+<i class="no-highlight">147</i>&nbsp;        final Map&lt;JsonPointer, JsonNode&gt; unchanged = getUnchangedValues(source, target);
+<i class="no-highlight">148</i>&nbsp;        final DiffProcessor processor = new DiffProcessor(unchanged);
+<i class="no-highlight">149</i>&nbsp;
+<i class="no-highlight">150</i>&nbsp;        generateDiffs(processor, JsonPointer.empty(), source, target, source);
+<i class="no-highlight">151</i>&nbsp;        return processor.getPatch();
+<i class="no-highlight">152</i>&nbsp;    }*/
+<i class="no-highlight">153</i>&nbsp;
+<i class="no-highlight">154</i>&nbsp;    /**
+<i class="no-highlight">155</i>&nbsp;     * Generate a JSON patch for transforming the source node into the target
+<i class="no-highlight">156</i>&nbsp;     * node
+<i class="no-highlight">157</i>&nbsp;     *
+<i class="no-highlight">158</i>&nbsp;     * @param source the node to be patched
+<i class="no-highlight">159</i>&nbsp;     * @param target the expected result after applying the patch
+<i class="no-highlight">160</i>&nbsp;     * @return the patch as a {@link JsonNode}
+<i class="no-highlight">161</i>&nbsp;     */
+<i class="no-highlight">162</i>&nbsp;    public static JsonNode asJson(final JsonNode source, final JsonNode target, final Map&lt;JsonPointer, Set&lt;String&gt;&gt; map )
+<i class="no-highlight">163</i>&nbsp;    {
+<i class="no-highlight">164</i>&nbsp;        final String s;
+<i class="no-highlight">165</i>&nbsp;        try {
+<b class="fc"><i class="no-highlight">166</i>&nbsp;            s = MAPPER.writeValueAsString(asJsonPatch(source, target,map));</b>
+<b class="fc"><i class="no-highlight">167</i>&nbsp;            return MAPPER.readTree(s);</b>
+<b class="nc"><i class="no-highlight">168</i>&nbsp;        } catch (IOException e) {</b>
+<b class="nc"><i class="no-highlight">169</i>&nbsp;            throw new RuntimeException(&quot;cannot generate JSON diff&quot;, e);</b>
+<i class="no-highlight">170</i>&nbsp;        }
+<i class="no-highlight">171</i>&nbsp;    }
+<i class="no-highlight">172</i>&nbsp;
+<i class="no-highlight">173</i>&nbsp;    private static void generateDiffs(final DiffProcessor processor,
+<i class="no-highlight">174</i>&nbsp;                                      final JsonPointer pointer,
+<i class="no-highlight">175</i>&nbsp;                                      final JsonNode source,
+<i class="no-highlight">176</i>&nbsp;                                      final JsonNode target,
+<i class="no-highlight">177</i>&nbsp;                                      final JsonNode source2)
+<i class="no-highlight">178</i>&nbsp;            throws JsonProcessingException
+<i class="no-highlight">179</i>&nbsp;    {
+<i class="no-highlight">180</i>&nbsp;
+<b class="fc"><i class="no-highlight">181</i>&nbsp;        if (EQUIVALENCE.equivalent(source, target))</b>
+<i class="no-highlight">182</i>&nbsp;        {return;}
+<i class="no-highlight">183</i>&nbsp;
+<b class="fc"><i class="no-highlight">184</i>&nbsp;        final NodeType firstType = NodeType.getNodeType(source);</b>
+<b class="fc"><i class="no-highlight">185</i>&nbsp;        final NodeType secondType = NodeType.getNodeType(target);</b>
+<i class="no-highlight">186</i>&nbsp;
+<i class="no-highlight">187</i>&nbsp;        /*
+<i class="no-highlight">188</i>&nbsp;         * Node types differ: generate a replacement operation.
+<i class="no-highlight">189</i>&nbsp;         */
+<b class="fc"><i class="no-highlight">190</i>&nbsp;        if (firstType != secondType) {</b>
+<b class="nc"><i class="no-highlight">191</i>&nbsp;            processor.valueReplaced(pointer, source, target, source2);</b>
+<i class="no-highlight">192</i>&nbsp;            return;
+<i class="no-highlight">193</i>&nbsp;        }
+<i class="no-highlight">194</i>&nbsp;
+<i class="no-highlight">195</i>&nbsp;        /*
+<i class="no-highlight">196</i>&nbsp;         * If we reach this point, it means that both nodes are the same type,
+<i class="no-highlight">197</i>&nbsp;         * but are not equivalent.
+<i class="no-highlight">198</i>&nbsp;         *
+<i class="no-highlight">199</i>&nbsp;         * If this is not a container, generate a replace operation.
+<i class="no-highlight">200</i>&nbsp;         */
+<b class="fc"><i class="no-highlight">201</i>&nbsp;        if (!source.isContainerNode()) {</b>
+<b class="fc"><i class="no-highlight">202</i>&nbsp;            processor.valueReplaced(pointer, source, target,source2);</b>
+<i class="no-highlight">203</i>&nbsp;            return;
+<i class="no-highlight">204</i>&nbsp;        }
+<i class="no-highlight">205</i>&nbsp;
+<i class="no-highlight">206</i>&nbsp;        /*
+<i class="no-highlight">207</i>&nbsp;         * If we reach this point, both nodes are either objects or arrays;
+<i class="no-highlight">208</i>&nbsp;         * delegate.
+<i class="no-highlight">209</i>&nbsp;         */
+<b class="fc"><i class="no-highlight">210</i>&nbsp;        if (firstType == NodeType.OBJECT)</b>
+<b class="fc"><i class="no-highlight">211</i>&nbsp;            generateObjectDiffs(processor, pointer, (ObjectNode) source, (ObjectNode) target);</b>
+<i class="no-highlight">212</i>&nbsp;        else // array
+<b class="fc"><i class="no-highlight">213</i>&nbsp;            generateArrayDiffs(processor, pointer, (ArrayNode) source,</b>
+<i class="no-highlight">214</i>&nbsp;                (ArrayNode) target);
+<i class="no-highlight">215</i>&nbsp;    }
+<i class="no-highlight">216</i>&nbsp;
+<i class="no-highlight">217</i>&nbsp;    private static void generateObjectDiffs(final DiffProcessor processor,
+<i class="no-highlight">218</i>&nbsp;        final JsonPointer pointer, final ObjectNode source,
+<i class="no-highlight">219</i>&nbsp;        final ObjectNode target) throws JsonProcessingException
+<i class="no-highlight">220</i>&nbsp;    {
+<b class="fc"><i class="no-highlight">221</i>&nbsp;        final Set&lt;String&gt; firstFields = collect(source.fieldNames(), new TreeSet&lt;String&gt;());</b>
+<b class="fc"><i class="no-highlight">222</i>&nbsp;        final Set&lt;String&gt; secondFields = collect(target.fieldNames(), new TreeSet&lt;String&gt;());</b>
+<i class="no-highlight">223</i>&nbsp;
+<b class="fc"><i class="no-highlight">224</i>&nbsp;        final Set&lt;String&gt; copy1 = new HashSet&lt;String&gt;(firstFields);</b>
+<b class="fc"><i class="no-highlight">225</i>&nbsp;        copy1.removeAll(secondFields);</b>
+<i class="no-highlight">226</i>&nbsp;
+<b class="fc"><i class="no-highlight">227</i>&nbsp;        for (final String field: Collections.unmodifiableSet(copy1)) {</b>
+<i class="no-highlight">228</i>&nbsp;
+<i class="no-highlight">229</i>&nbsp;            //for removed operation here i take 3 parameter from the node.
+<b class="nc"><i class="no-highlight">230</i>&nbsp;            ArrayNode og_value_node = new ObjectMapper().createArrayNode();</b>
+<b class="nc"><i class="no-highlight">231</i>&nbsp;            og_value_node.add(target.get(&quot;Application Key&quot;));</b>
+<b class="nc"><i class="no-highlight">232</i>&nbsp;            og_value_node.add(target.get(&quot;Entitlement Type&quot;));</b>
+<b class="nc"><i class="no-highlight">233</i>&nbsp;            og_value_node.add(target.get(&quot;Entitlement Name&quot;));</b>
+<b class="nc"><i class="no-highlight">234</i>&nbsp;            processor.valueRemoved(pointer.parent().append(&quot;?&quot;), target.get(field) , og_value_node);</b>
+<i class="no-highlight">235</i>&nbsp;
+<b class="nc"><i class="no-highlight">236</i>&nbsp;        }</b>
+<b class="fc"><i class="no-highlight">237</i>&nbsp;        final Set&lt;String&gt; copy2 = new HashSet&lt;String&gt;(secondFields);</b>
+<b class="fc"><i class="no-highlight">238</i>&nbsp;        copy2.removeAll(firstFields);</b>
+<i class="no-highlight">239</i>&nbsp;
+<b class="fc"><i class="no-highlight">240</i>&nbsp;        for (final String field: Collections.unmodifiableSet(copy2))</b>
+<i class="no-highlight">241</i>&nbsp;        {
+<b class="nc"><i class="no-highlight">242</i>&nbsp;            processor.valueAdded(pointer.parent().append(&quot;-&quot;), target.get(field), source);</b>
+<i class="no-highlight">243</i>&nbsp;        //trying
+<i class="no-highlight">244</i>&nbsp;            //adding new attribute or element
+<i class="no-highlight">245</i>&nbsp;         /*   String json = &quot;{\n&quot; +
+<i class="no-highlight">246</i>&nbsp;                    &quot;  \&quot;name\&quot;: \&quot;extra data\&quot;,\n&quot; +
+<i class="no-highlight">247</i>&nbsp;                    &quot;  \&quot;salary\&quot;: 56000\n&quot; +
+<i class="no-highlight">248</i>&nbsp;                    &quot;}&quot;;
+<i class="no-highlight">249</i>&nbsp;            JsonNode jsonNode1 = new ObjectMapper().readTree(json);
+<i class="no-highlight">250</i>&nbsp;            processor.valueAdded(pointer.parent().append(&quot;-&gt;&quot;), jsonNode1);*/
+<i class="no-highlight">251</i>&nbsp;
+<b class="nc"><i class="no-highlight">252</i>&nbsp;        }</b>
+<b class="fc"><i class="no-highlight">253</i>&nbsp;        final Set&lt;String&gt; intersection = new HashSet&lt;String&gt;(firstFields);</b>
+<b class="fc"><i class="no-highlight">254</i>&nbsp;        intersection.retainAll(secondFields);</b>
+<i class="no-highlight">255</i>&nbsp;
+<b class="fc"><i class="no-highlight">256</i>&nbsp;        for (final String field: intersection)</b>
+<b class="fc"><i class="no-highlight">257</i>&nbsp;            generateDiffs(processor, pointer.append(field), source.get(field), target.get(field) , source);</b>
+<i class="no-highlight">258</i>&nbsp;    }
+<i class="no-highlight">259</i>&nbsp;
+<i class="no-highlight">260</i>&nbsp;    private static &lt;T&gt; Set&lt;T&gt; collect(Iterator&lt;T&gt; from, Set&lt;T&gt; to) {
+<b class="fc"><i class="no-highlight">261</i>&nbsp;        if (from == null) {</b>
+<b class="nc"><i class="no-highlight">262</i>&nbsp;            throw new NullPointerException();</b>
+<i class="no-highlight">263</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">264</i>&nbsp;        if (to == null) {</b>
+<b class="nc"><i class="no-highlight">265</i>&nbsp;            throw new NullPointerException();</b>
+<i class="no-highlight">266</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">267</i>&nbsp;        while (from.hasNext()) {</b>
+<b class="fc"><i class="no-highlight">268</i>&nbsp;            to.add(from.next());</b>
+<i class="no-highlight">269</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">270</i>&nbsp;        return Collections.unmodifiableSet(to);</b>
+<i class="no-highlight">271</i>&nbsp;    }
+<i class="no-highlight">272</i>&nbsp;
+<i class="no-highlight">273</i>&nbsp;
+<i class="no-highlight">274</i>&nbsp;
+<i class="no-highlight">275</i>&nbsp;    private static void generateArrayDiffs(final DiffProcessor processor,
+<i class="no-highlight">276</i>&nbsp;        final JsonPointer pointer, final ArrayNode source,
+<i class="no-highlight">277</i>&nbsp;        final ArrayNode target) throws JsonProcessingException {
+<b class="fc"><i class="no-highlight">278</i>&nbsp;        final int firstSize = source.size();</b>
+<b class="fc"><i class="no-highlight">279</i>&nbsp;        final int secondSize = target.size();</b>
+<b class="fc"><i class="no-highlight">280</i>&nbsp;        final int size = Math.min(firstSize, secondSize);</b>
+<i class="no-highlight">281</i>&nbsp;
+<i class="no-highlight">282</i>&nbsp;        /*
+<i class="no-highlight">283</i>&nbsp;         * Source array is larger; in this case, elements are removed from the
+<i class="no-highlight">284</i>&nbsp;         * target; the index of removal is always the original arrays&#39;s length.
+<i class="no-highlight">285</i>&nbsp;         */
+<b class="fc"><i class="no-highlight">286</i>&nbsp;        for (int index = size; index &lt; firstSize; index++) {</b>
+<b class="nc"><i class="no-highlight">287</i>&nbsp;            ArrayNode og_value_node = new ObjectMapper().createArrayNode();</b>
+<b class="nc"><i class="no-highlight">288</i>&nbsp;            og_value_node.add(source.get(&quot;Application Key&quot;));</b>
+<b class="nc"><i class="no-highlight">289</i>&nbsp;            og_value_node.add(source.get(&quot;Entitlement Type&quot;));</b>
+<b class="nc"><i class="no-highlight">290</i>&nbsp;            og_value_node.add(source.get(&quot;Entitlement Name&quot;));</b>
+<i class="no-highlight">291</i>&nbsp;
+<i class="no-highlight">292</i>&nbsp;            // System.out.println(&quot;&quot;+og_value_node.toPrettyString());
+<i class="no-highlight">293</i>&nbsp;
+<b class="nc"><i class="no-highlight">294</i>&nbsp;            processor.valueRemoved(pointer.parent().append(&quot;?&quot;), source.get(index) , og_value_node);</b>
+<i class="no-highlight">295</i>&nbsp;            //check code here because i added this code :- source.findValue(String.valueOf(index))
+<i class="no-highlight">296</i>&nbsp;        }
+<b class="fc"><i class="no-highlight">297</i>&nbsp;        for (int index = 0; index &lt; size; index++) {</b>
+<i class="no-highlight">298</i>&nbsp;            //here we simply check op type and change index with dash but unfortunately our op is not in scope.
+<b class="fc"><i class="no-highlight">299</i>&nbsp;            generateDiffs(processor, pointer.append(index),</b>
+<b class="fc"><i class="no-highlight">300</i>&nbsp;                    source.get(index), target.get(index), source);</b>
+<i class="no-highlight">301</i>&nbsp;        }
+<i class="no-highlight">302</i>&nbsp;        // Deal with the destination array being larger...
+<b class="fc"><i class="no-highlight">303</i>&nbsp;        for (int index = size; index &lt; secondSize; index++) {</b>
+<b class="nc"><i class="no-highlight">304</i>&nbsp;            processor.valueAdded(pointer, target.get(index) , null);</b>
+<i class="no-highlight">305</i>&nbsp;            //adding new attribute or element
+<i class="no-highlight">306</i>&nbsp;           /* String json = &quot;{\n&quot; +
+<i class="no-highlight">307</i>&nbsp;                    &quot;  \&quot;opb\&quot;: \&quot;sample\&quot;,\n&quot; +
+<i class="no-highlight">308</i>&nbsp;                    &quot;  \&quot;path\&quot;: \&quot;/volRoleInVEM/?\&quot;,\n&quot; +
+<i class="no-highlight">309</i>&nbsp;                    &quot;  \&quot;original_value\&quot;: {\n&quot; +
+<i class="no-highlight">310</i>&nbsp;                    &quot;    \&quot;roleName\&quot;: \&quot;role1\&quot;\n&quot; +
+<i class="no-highlight">311</i>&nbsp;                    &quot;  }\n&quot; +
+<i class="no-highlight">312</i>&nbsp;                    &quot;}\n&quot; +
+<i class="no-highlight">313</i>&nbsp;                    &quot;\n&quot;;
+<i class="no-highlight">314</i>&nbsp;            JsonNode jsonNode1 = new ObjectMapper().readTree(json);
+<i class="no-highlight">315</i>&nbsp;            processor.valueAdded(pointer , jsonNode1);*/
+<i class="no-highlight">316</i>&nbsp;        }
+<i class="no-highlight">317</i>&nbsp;    }
+<i class="no-highlight">318</i>&nbsp;
+<i class="no-highlight">319</i>&nbsp;
+<i class="no-highlight">320</i>&nbsp;    static Map&lt;JsonPointer, JsonNode&gt; getUnchangedValues(final JsonNode source,
+<i class="no-highlight">321</i>&nbsp;        final JsonNode target)
+<i class="no-highlight">322</i>&nbsp;    {
+<b class="fc"><i class="no-highlight">323</i>&nbsp;        final Map&lt;JsonPointer, JsonNode&gt; ret = new HashMap&lt;JsonPointer, JsonNode&gt;();</b>
+<b class="fc"><i class="no-highlight">324</i>&nbsp;        computeUnchanged(ret, JsonPointer.empty(), source, target);</b>
+<b class="fc"><i class="no-highlight">325</i>&nbsp;        return ret;</b>
+<i class="no-highlight">326</i>&nbsp;    }
+<i class="no-highlight">327</i>&nbsp;
+<i class="no-highlight">328</i>&nbsp;    private static void computeUnchanged(final Map&lt;JsonPointer, JsonNode&gt; ret,
+<i class="no-highlight">329</i>&nbsp;        final JsonPointer pointer, final JsonNode first, final JsonNode second)
+<i class="no-highlight">330</i>&nbsp;    {
+<b class="fc"><i class="no-highlight">331</i>&nbsp;        if (EQUIVALENCE.equivalent(first, second)) {</b>
+<b class="fc"><i class="no-highlight">332</i>&nbsp;            ret.put(pointer, second);</b>
+<i class="no-highlight">333</i>&nbsp;            return;
+<i class="no-highlight">334</i>&nbsp;        }
+<i class="no-highlight">335</i>&nbsp;
+<b class="fc"><i class="no-highlight">336</i>&nbsp;        final NodeType firstType = NodeType.getNodeType(first);</b>
+<b class="fc"><i class="no-highlight">337</i>&nbsp;        final NodeType secondType = NodeType.getNodeType(second);</b>
+<i class="no-highlight">338</i>&nbsp;
+<b class="fc"><i class="no-highlight">339</i>&nbsp;        if (firstType != secondType)</b>
+<i class="no-highlight">340</i>&nbsp;            return; // nothing in common
+<i class="no-highlight">341</i>&nbsp;
+<i class="no-highlight">342</i>&nbsp;        // We know they are both the same type, so...
+<i class="no-highlight">343</i>&nbsp;
+<b class="fc"><i class="no-highlight">344</i>&nbsp;        switch (firstType) {</b>
+<i class="no-highlight">345</i>&nbsp;            case OBJECT:
+<b class="fc"><i class="no-highlight">346</i>&nbsp;                computeObject(ret, pointer, first, second);</b>
+<b class="fc"><i class="no-highlight">347</i>&nbsp;                break;</b>
+<i class="no-highlight">348</i>&nbsp;            case ARRAY:
+<b class="fc"><i class="no-highlight">349</i>&nbsp;                computeArray(ret, pointer, first, second);</b>
+<b class="fc"><i class="no-highlight">350</i>&nbsp;                break;</b>
+<i class="no-highlight">351</i>&nbsp;            default:
+<i class="no-highlight">352</i>&nbsp;                /* nothing */
+<i class="no-highlight">353</i>&nbsp;        }
+<i class="no-highlight">354</i>&nbsp;    }
+<i class="no-highlight">355</i>&nbsp;
+<i class="no-highlight">356</i>&nbsp;    private static void computeObject(final Map&lt;JsonPointer, JsonNode&gt; ret,
+<i class="no-highlight">357</i>&nbsp;        final JsonPointer pointer, final JsonNode source,
+<i class="no-highlight">358</i>&nbsp;        final JsonNode target)
+<i class="no-highlight">359</i>&nbsp;    {
+<b class="fc"><i class="no-highlight">360</i>&nbsp;        final Iterator&lt;String&gt; firstFields = source.fieldNames();</b>
+<i class="no-highlight">361</i>&nbsp;
+<i class="no-highlight">362</i>&nbsp;        String name;
+<i class="no-highlight">363</i>&nbsp;
+<b class="fc"><i class="no-highlight">364</i>&nbsp;        while (firstFields.hasNext()) {</b>
+<b class="fc"><i class="no-highlight">365</i>&nbsp;            name = firstFields.next();</b>
+<b class="fc"><i class="no-highlight">366</i>&nbsp;            if (!target.has(name))</b>
+<b class="fc"><i class="no-highlight">367</i>&nbsp;                continue;computeUnchanged(ret, pointer.append(name), source.get(name),</b>
+<b class="fc"><i class="no-highlight">368</i>&nbsp;                target.get(name));</b>
+<i class="no-highlight">369</i>&nbsp;        }
+<i class="no-highlight">370</i>&nbsp;    }
+<i class="no-highlight">371</i>&nbsp;
+<i class="no-highlight">372</i>&nbsp;    private static void computeArray(final Map&lt;JsonPointer, JsonNode&gt; ret,
+<i class="no-highlight">373</i>&nbsp;        final JsonPointer pointer, final JsonNode source, final JsonNode target)
+<i class="no-highlight">374</i>&nbsp;    {
+<b class="fc"><i class="no-highlight">375</i>&nbsp;        final int size = Math.min(source.size(), target.size());</b>
+<i class="no-highlight">376</i>&nbsp;
+<b class="fc"><i class="no-highlight">377</i>&nbsp;        for (int i = 0; i &lt; size; i++) {</b>
+<b class="fc"><i class="no-highlight">378</i>&nbsp;            computeUnchanged(ret, pointer.append(i), source.get(i), target.get(i));</b>
+<i class="no-highlight">379</i>&nbsp;        }
+<i class="no-highlight">380</i>&nbsp;    }
+<i class="no-highlight">381</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-01-18 17:01</div>
+</div>
+</body>
+</html>

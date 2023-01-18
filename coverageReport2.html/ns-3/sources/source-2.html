@@ -1,0 +1,210 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > JsonMergePatchDeserializer</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.github.fge.jsonpatch.mergepatch</a>
+</div>
+
+<h1>Coverage Summary for Class: JsonMergePatchDeserializer (com.github.fge.jsonpatch.mergepatch)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">JsonMergePatchDeserializer</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/19)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;/*
+<i class="no-highlight">2</i>&nbsp; * Copyright (c) 2014, Francis Galiegue (fgaliegue@gmail.com)
+<i class="no-highlight">3</i>&nbsp; *
+<i class="no-highlight">4</i>&nbsp; * This software is dual-licensed under:
+<i class="no-highlight">5</i>&nbsp; *
+<i class="no-highlight">6</i>&nbsp; * - the Lesser General Public License (LGPL) version 3.0 or, at your option, any
+<i class="no-highlight">7</i>&nbsp; *   later version;
+<i class="no-highlight">8</i>&nbsp; * - the Apache Software License (ASL) version 2.0.
+<i class="no-highlight">9</i>&nbsp; *
+<i class="no-highlight">10</i>&nbsp; * The text of this file and of both licenses is available at the root of this
+<i class="no-highlight">11</i>&nbsp; * project or, if you have the jar distribution, in directory META-INF/, under
+<i class="no-highlight">12</i>&nbsp; * the names LGPL-3.0.txt and ASL-2.0.txt respectively.
+<i class="no-highlight">13</i>&nbsp; *
+<i class="no-highlight">14</i>&nbsp; * Direct link to the sources:
+<i class="no-highlight">15</i>&nbsp; *
+<i class="no-highlight">16</i>&nbsp; * - LGPL 3.0: https://www.gnu.org/licenses/lgpl-3.0.txt
+<i class="no-highlight">17</i>&nbsp; * - ASL 2.0: http://www.apache.org/licenses/LICENSE-2.0.txt
+<i class="no-highlight">18</i>&nbsp; */
+<i class="no-highlight">19</i>&nbsp;
+<i class="no-highlight">20</i>&nbsp;package com.github.fge.jsonpatch.mergepatch;
+<i class="no-highlight">21</i>&nbsp;
+<i class="no-highlight">22</i>&nbsp;import com.fasterxml.jackson.core.JsonParser;
+<i class="no-highlight">23</i>&nbsp;import com.fasterxml.jackson.core.JsonProcessingException;
+<i class="no-highlight">24</i>&nbsp;import com.fasterxml.jackson.core.ObjectCodec;
+<i class="no-highlight">25</i>&nbsp;import com.fasterxml.jackson.databind.DeserializationContext;
+<i class="no-highlight">26</i>&nbsp;import com.fasterxml.jackson.databind.JsonDeserializer;
+<i class="no-highlight">27</i>&nbsp;import com.fasterxml.jackson.databind.JsonNode;
+<i class="no-highlight">28</i>&nbsp;import com.fasterxml.jackson.databind.node.NullNode;
+<i class="no-highlight">29</i>&nbsp;import com.github.fge.jackson.JacksonUtils;
+<i class="no-highlight">30</i>&nbsp;
+<i class="no-highlight">31</i>&nbsp;import java.io.IOException;
+<i class="no-highlight">32</i>&nbsp;import java.util.Collections;
+<i class="no-highlight">33</i>&nbsp;import java.util.HashMap;
+<i class="no-highlight">34</i>&nbsp;import java.util.HashSet;
+<i class="no-highlight">35</i>&nbsp;import java.util.Iterator;
+<i class="no-highlight">36</i>&nbsp;import java.util.Map;
+<i class="no-highlight">37</i>&nbsp;import java.util.Set;
+<i class="no-highlight">38</i>&nbsp;
+<b class="nc"><i class="no-highlight">39</i>&nbsp;final class JsonMergePatchDeserializer</b>
+<i class="no-highlight">40</i>&nbsp;    extends JsonDeserializer&lt;JsonMergePatch&gt;
+<i class="no-highlight">41</i>&nbsp;{
+<i class="no-highlight">42</i>&nbsp;    /*
+<i class="no-highlight">43</i>&nbsp;     * FIXME! UGLY! HACK!
+<i class="no-highlight">44</i>&nbsp;     *
+<i class="no-highlight">45</i>&nbsp;     * We MUST have an ObjectCodec ready so that the parser in .deserialize()
+<i class="no-highlight">46</i>&nbsp;     * can actually do something useful -- for instance, deserializing even a
+<i class="no-highlight">47</i>&nbsp;     * JsonNode.
+<i class="no-highlight">48</i>&nbsp;     *
+<i class="no-highlight">49</i>&nbsp;     * Jackson does not do this automatically; I don&#39;t know why...
+<i class="no-highlight">50</i>&nbsp;     */
+<b class="nc"><i class="no-highlight">51</i>&nbsp;    private static final ObjectCodec CODEC = JacksonUtils.newMapper();</b>
+<i class="no-highlight">52</i>&nbsp;
+<i class="no-highlight">53</i>&nbsp;    @Override
+<i class="no-highlight">54</i>&nbsp;    public JsonMergePatch deserialize(final JsonParser jp,
+<i class="no-highlight">55</i>&nbsp;        final DeserializationContext ctxt)
+<i class="no-highlight">56</i>&nbsp;        throws IOException, JsonProcessingException
+<i class="no-highlight">57</i>&nbsp;    {
+<i class="no-highlight">58</i>&nbsp;        // FIXME: see comment above
+<b class="nc"><i class="no-highlight">59</i>&nbsp;        jp.setCodec(CODEC);</b>
+<b class="nc"><i class="no-highlight">60</i>&nbsp;        final JsonNode node = jp.readValueAsTree();</b>
+<i class="no-highlight">61</i>&nbsp;
+<i class="no-highlight">62</i>&nbsp;        /*
+<i class="no-highlight">63</i>&nbsp;         * Not an object: the simple case
+<i class="no-highlight">64</i>&nbsp;         */
+<b class="nc"><i class="no-highlight">65</i>&nbsp;        if (!node.isObject())</b>
+<b class="nc"><i class="no-highlight">66</i>&nbsp;            return new NonObjectMergePatch(node);</b>
+<i class="no-highlight">67</i>&nbsp;
+<i class="no-highlight">68</i>&nbsp;        /*
+<i class="no-highlight">69</i>&nbsp;         * The complicated case...
+<i class="no-highlight">70</i>&nbsp;         *
+<i class="no-highlight">71</i>&nbsp;         * We have to build a set of removed members, plus a map of modified
+<i class="no-highlight">72</i>&nbsp;         * members.
+<i class="no-highlight">73</i>&nbsp;         */
+<i class="no-highlight">74</i>&nbsp;
+<b class="nc"><i class="no-highlight">75</i>&nbsp;        final Set&lt;String&gt; removedMembers = new HashSet&lt;String&gt;();</b>
+<b class="nc"><i class="no-highlight">76</i>&nbsp;        final Map&lt;String, JsonMergePatch&gt; modifiedMembers = new HashMap&lt;String, JsonMergePatch&gt;();</b>
+<b class="nc"><i class="no-highlight">77</i>&nbsp;        final Iterator&lt;Map.Entry&lt;String, JsonNode&gt;&gt; iterator = node.fields();</b>
+<i class="no-highlight">78</i>&nbsp;
+<i class="no-highlight">79</i>&nbsp;        Map.Entry&lt;String, JsonNode&gt; entry;
+<i class="no-highlight">80</i>&nbsp;
+<b class="nc"><i class="no-highlight">81</i>&nbsp;        while (iterator.hasNext()) {</b>
+<b class="nc"><i class="no-highlight">82</i>&nbsp;            entry = iterator.next();</b>
+<b class="nc"><i class="no-highlight">83</i>&nbsp;            if (entry.getValue().isNull())</b>
+<b class="nc"><i class="no-highlight">84</i>&nbsp;                removedMembers.add(entry.getKey());</b>
+<i class="no-highlight">85</i>&nbsp;            else {
+<b class="nc"><i class="no-highlight">86</i>&nbsp;                final JsonMergePatch value</b>
+<b class="nc"><i class="no-highlight">87</i>&nbsp;                    = deserialize(entry.getValue().traverse(), ctxt);</b>
+<b class="nc"><i class="no-highlight">88</i>&nbsp;                modifiedMembers.put(entry.getKey(), value);</b>
+<b class="nc"><i class="no-highlight">89</i>&nbsp;            }</b>
+<i class="no-highlight">90</i>&nbsp;        }
+<i class="no-highlight">91</i>&nbsp;
+<b class="nc"><i class="no-highlight">92</i>&nbsp;        return new ObjectMergePatch(removedMembers, modifiedMembers);</b>
+<i class="no-highlight">93</i>&nbsp;    }
+<i class="no-highlight">94</i>&nbsp;
+<i class="no-highlight">95</i>&nbsp;    /*
+<i class="no-highlight">96</i>&nbsp;     * This method MUST be overriden... The default is to return null, which is
+<i class="no-highlight">97</i>&nbsp;     * not what we want.
+<i class="no-highlight">98</i>&nbsp;     */
+<i class="no-highlight">99</i>&nbsp;    @Override
+<i class="no-highlight">100</i>&nbsp;    @SuppressWarnings(&quot;deprecation&quot;)
+<i class="no-highlight">101</i>&nbsp;    public JsonMergePatch getNullValue()
+<i class="no-highlight">102</i>&nbsp;    {
+<b class="nc"><i class="no-highlight">103</i>&nbsp;        return new NonObjectMergePatch(NullNode.getInstance());</b>
+<i class="no-highlight">104</i>&nbsp;    }
+<i class="no-highlight">105</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-01-18 17:01</div>
+</div>
+</body>
+</html>

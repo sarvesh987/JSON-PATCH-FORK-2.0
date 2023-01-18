@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.github.fge.jsonpatch.diff.UnchangedTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2023-01-18T11:31:08" hostname="Sarvesh.local" time="0.147">
+  <properties/>
+  <testcase name="testCase1" classname="com.github.fge.jsonpatch.diff.UnchangedTest" time="0.147"/>
+  <system-out><![CDATA[[ {
+  "op" : "replace",
+  "path" : "/Entitlements/?/Entitlement Name",
+  "value" : "updated",
+  "original_value" : {
+    "Application Key" : "121",
+    "Entitlement Type" : "UD_GROUPS_GROUPS",
+    "Entitlement Name" : "144~Network Security Role"
+  }
+}, {
+  "op" : "replace",
+  "path" : "/Entitlements/?/Application Key",
+  "value" : "updated",
+  "original_value" : {
+    "Application Key" : "121",
+    "Entitlement Type" : "UD_GROUPS_GROUPS",
+    "Entitlement Name" : "144~Network Security Role"
+  }
+}, {
+  "op" : "replace",
+  "path" : "/Entitlements/?/Additional Info",
+  "value" : "updated",
+  "original_value" : {
+    "Application Key" : "100",
+    "Entitlement Type" : "UD_GROUPS_GROUPS",
+    "Entitlement Name" : "565~Deployment Owners",
+    "Entitlement Key" : "askjdhfiegig02k",
+    "Additional Info" : "test"
+  }
+}, {
+  "op" : "replace",
+  "path" : "/Entitlements/?/Entitlement Key",
+  "value" : "updated",
+  "original_value" : {
+    "Application Key" : "100",
+    "Entitlement Type" : "UD_GROUPS_GROUPS",
+    "Entitlement Name" : "565~Deployment Owners",
+    "Entitlement Key" : "askjdhfiegig02k",
+    "Additional Info" : "test"
+  }
+}, {
+  "op" : "replace",
+  "path" : "/?/Role Owner Login",
+  "value" : "Updated"
+} ]
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

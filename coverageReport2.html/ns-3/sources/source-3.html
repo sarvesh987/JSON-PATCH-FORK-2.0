@@ -1,0 +1,174 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > NonObjectMergePatch</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.github.fge.jsonpatch.mergepatch</a>
+</div>
+
+<h1>Coverage Summary for Class: NonObjectMergePatch (com.github.fge.jsonpatch.mergepatch)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">NonObjectMergePatch</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/4)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/8)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;/*
+<i class="no-highlight">2</i>&nbsp; * Copyright (c) 2014, Francis Galiegue (fgaliegue@gmail.com)
+<i class="no-highlight">3</i>&nbsp; *
+<i class="no-highlight">4</i>&nbsp; * This software is dual-licensed under:
+<i class="no-highlight">5</i>&nbsp; *
+<i class="no-highlight">6</i>&nbsp; * - the Lesser General Public License (LGPL) version 3.0 or, at your option, any
+<i class="no-highlight">7</i>&nbsp; *   later version;
+<i class="no-highlight">8</i>&nbsp; * - the Apache Software License (ASL) version 2.0.
+<i class="no-highlight">9</i>&nbsp; *
+<i class="no-highlight">10</i>&nbsp; * The text of this file and of both licenses is available at the root of this
+<i class="no-highlight">11</i>&nbsp; * project or, if you have the jar distribution, in directory META-INF/, under
+<i class="no-highlight">12</i>&nbsp; * the names LGPL-3.0.txt and ASL-2.0.txt respectively.
+<i class="no-highlight">13</i>&nbsp; *
+<i class="no-highlight">14</i>&nbsp; * Direct link to the sources:
+<i class="no-highlight">15</i>&nbsp; *
+<i class="no-highlight">16</i>&nbsp; * - LGPL 3.0: https://www.gnu.org/licenses/lgpl-3.0.txt
+<i class="no-highlight">17</i>&nbsp; * - ASL 2.0: http://www.apache.org/licenses/LICENSE-2.0.txt
+<i class="no-highlight">18</i>&nbsp; */
+<i class="no-highlight">19</i>&nbsp;
+<i class="no-highlight">20</i>&nbsp;package com.github.fge.jsonpatch.mergepatch;
+<i class="no-highlight">21</i>&nbsp;
+<i class="no-highlight">22</i>&nbsp;import com.fasterxml.jackson.core.JsonGenerator;
+<i class="no-highlight">23</i>&nbsp;import com.fasterxml.jackson.core.JsonProcessingException;
+<i class="no-highlight">24</i>&nbsp;import com.fasterxml.jackson.databind.JsonNode;
+<i class="no-highlight">25</i>&nbsp;import com.fasterxml.jackson.databind.SerializerProvider;
+<i class="no-highlight">26</i>&nbsp;import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+<i class="no-highlight">27</i>&nbsp;import com.github.fge.jsonpatch.JsonPatchException;
+<i class="no-highlight">28</i>&nbsp;
+<i class="no-highlight">29</i>&nbsp;import javax.annotation.ParametersAreNonnullByDefault;
+<i class="no-highlight">30</i>&nbsp;import java.io.IOException;
+<i class="no-highlight">31</i>&nbsp;
+<i class="no-highlight">32</i>&nbsp;@ParametersAreNonnullByDefault
+<i class="no-highlight">33</i>&nbsp;final class NonObjectMergePatch
+<i class="no-highlight">34</i>&nbsp;    extends JsonMergePatch
+<i class="no-highlight">35</i>&nbsp;{
+<i class="no-highlight">36</i>&nbsp;    private final JsonNode node;
+<i class="no-highlight">37</i>&nbsp;
+<i class="no-highlight">38</i>&nbsp;    NonObjectMergePatch(final JsonNode node)
+<b class="nc"><i class="no-highlight">39</i>&nbsp;    {</b>
+<b class="nc"><i class="no-highlight">40</i>&nbsp;        if (node == null) {</b>
+<b class="nc"><i class="no-highlight">41</i>&nbsp;            throw new NullPointerException();</b>
+<i class="no-highlight">42</i>&nbsp;        }
+<b class="nc"><i class="no-highlight">43</i>&nbsp;        this.node = node;</b>
+<i class="no-highlight">44</i>&nbsp;    }
+<i class="no-highlight">45</i>&nbsp;
+<i class="no-highlight">46</i>&nbsp;    @Override
+<i class="no-highlight">47</i>&nbsp;    public JsonNode apply(final JsonNode input)
+<i class="no-highlight">48</i>&nbsp;        throws JsonPatchException
+<i class="no-highlight">49</i>&nbsp;    {
+<b class="nc"><i class="no-highlight">50</i>&nbsp;        BUNDLE.checkNotNull(input, &quot;jsonPatch.nullValue&quot;);</b>
+<b class="nc"><i class="no-highlight">51</i>&nbsp;        return node;</b>
+<i class="no-highlight">52</i>&nbsp;    }
+<i class="no-highlight">53</i>&nbsp;
+<i class="no-highlight">54</i>&nbsp;    @Override
+<i class="no-highlight">55</i>&nbsp;    public void serialize(final JsonGenerator jgen,
+<i class="no-highlight">56</i>&nbsp;        final SerializerProvider provider)
+<i class="no-highlight">57</i>&nbsp;        throws IOException, JsonProcessingException
+<i class="no-highlight">58</i>&nbsp;    {
+<b class="nc"><i class="no-highlight">59</i>&nbsp;        jgen.writeTree(node);</b>
+<i class="no-highlight">60</i>&nbsp;    }
+<i class="no-highlight">61</i>&nbsp;
+<i class="no-highlight">62</i>&nbsp;    @Override
+<i class="no-highlight">63</i>&nbsp;    public void serializeWithType(final JsonGenerator jgen,
+<i class="no-highlight">64</i>&nbsp;        final SerializerProvider provider, final TypeSerializer typeSer)
+<i class="no-highlight">65</i>&nbsp;        throws IOException, JsonProcessingException
+<i class="no-highlight">66</i>&nbsp;    {
+<b class="nc"><i class="no-highlight">67</i>&nbsp;        serialize(jgen, provider);</b>
+<i class="no-highlight">68</i>&nbsp;    }
+<i class="no-highlight">69</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-01-18 17:01</div>
+</div>
+</body>
+</html>

@@ -1,0 +1,45 @@
+[ {
+  "op" : "replace",
+/  "path" : "/Entitlements/?/Entitlement Name",
+  "value" : "updated",
+  "original_value" : {
+    "Application Key" : "121",
+-    "Entitlement Type" : "UD_GROUPS_GROUPS",
+5    "Entitlement Name" : "144~Network Security Role"
+  }
+}, {
+  "op" : "replace",
+.  "path" : "/Entitlements/?/Application Key",
+  "value" : "updated",
+  "original_value" : {
+    "Application Key" : "121",
+-    "Entitlement Type" : "UD_GROUPS_GROUPS",
+5    "Entitlement Name" : "144~Network Security Role"
+  }
+}, {
+  "op" : "replace",
+.  "path" : "/Entitlements/?/Additional Info",
+  "value" : "updated",
+  "original_value" : {
+    "Application Key" : "100",
+-    "Entitlement Type" : "UD_GROUPS_GROUPS",
+2    "Entitlement Name" : "565~Deployment Owners",
++    "Entitlement Key" : "askjdhfiegig02k",
+    "Additional Info" : "test"
+  }
+}, {
+  "op" : "replace",
+.  "path" : "/Entitlements/?/Entitlement Key",
+  "value" : "updated",
+  "original_value" : {
+    "Application Key" : "100",
+-    "Entitlement Type" : "UD_GROUPS_GROUPS",
+2    "Entitlement Name" : "565~Deployment Owners",
++    "Entitlement Key" : "askjdhfiegig02k",
+    "Additional Info" : "test"
+  }
+}, {
+  "op" : "replace",
+"  "path" : "/?/Role Owner Login",
+  "value" : "Updated"
+} ]

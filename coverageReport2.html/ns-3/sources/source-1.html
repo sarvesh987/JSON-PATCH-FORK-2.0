@@ -1,0 +1,211 @@
+
+
+
+<!DOCTYPE html>
+<html id="htmlId">
+<head>
+  <title>Coverage Report > JsonMergePatch</title>
+  <style type="text/css">
+    @import "../../css/coverage.css";
+    @import "../../css/highlight-idea.css";
+  </style>
+  <script type="text/javascript" src="../../js/highlight.pack.js"></script>
+</head>
+
+<body>
+<div class="content">
+<div class="breadCrumbs">
+Current scope:     <a href="../../index.html">all classes</a>
+    <span class="separator">|</span>
+    <a href="../index.html">com.github.fge.jsonpatch.mergepatch</a>
+</div>
+
+<h1>Coverage Summary for Class: JsonMergePatch (com.github.fge.jsonpatch.mergepatch)</h1>
+
+<table class="coverageStats">
+<tr>
+  <th class="name">Class</th>
+<th class="coverageStat 
+">
+  Class, %
+</th>
+<th class="coverageStat 
+">
+  Method, %
+</th>
+<th class="coverageStat 
+">
+  Line, %
+</th>
+</tr>
+<tr>
+  <td class="name">JsonMergePatch</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/1)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/3)
+  </span>
+</td>
+<td class="coverageStat">
+  <span class="percent">
+    0%
+  </span>
+  <span class="absValue">
+    (0/9)
+  </span>
+</td>
+</tr>
+
+</table>
+
+<br/>
+<br/>
+
+
+<pre>
+<div class="sourceCode" id="sourceCode"><i class="no-highlight">1</i>&nbsp;/*
+<i class="no-highlight">2</i>&nbsp; * Copyright (c) 2014, Francis Galiegue (fgaliegue@gmail.com)
+<i class="no-highlight">3</i>&nbsp; *
+<i class="no-highlight">4</i>&nbsp; * This software is dual-licensed under:
+<i class="no-highlight">5</i>&nbsp; *
+<i class="no-highlight">6</i>&nbsp; * - the Lesser General Public License (LGPL) version 3.0 or, at your option, any
+<i class="no-highlight">7</i>&nbsp; *   later version;
+<i class="no-highlight">8</i>&nbsp; * - the Apache Software License (ASL) version 2.0.
+<i class="no-highlight">9</i>&nbsp; *
+<i class="no-highlight">10</i>&nbsp; * The text of this file and of both licenses is available at the root of this
+<i class="no-highlight">11</i>&nbsp; * project or, if you have the jar distribution, in directory META-INF/, under
+<i class="no-highlight">12</i>&nbsp; * the names LGPL-3.0.txt and ASL-2.0.txt respectively.
+<i class="no-highlight">13</i>&nbsp; *
+<i class="no-highlight">14</i>&nbsp; * Direct link to the sources:
+<i class="no-highlight">15</i>&nbsp; *
+<i class="no-highlight">16</i>&nbsp; * - LGPL 3.0: https://www.gnu.org/licenses/lgpl-3.0.txt
+<i class="no-highlight">17</i>&nbsp; * - ASL 2.0: http://www.apache.org/licenses/LICENSE-2.0.txt
+<i class="no-highlight">18</i>&nbsp; */
+<i class="no-highlight">19</i>&nbsp;
+<i class="no-highlight">20</i>&nbsp;package com.github.fge.jsonpatch.mergepatch;
+<i class="no-highlight">21</i>&nbsp;
+<i class="no-highlight">22</i>&nbsp;import com.fasterxml.jackson.databind.JsonNode;
+<i class="no-highlight">23</i>&nbsp;import com.fasterxml.jackson.databind.JsonSerializable;
+<i class="no-highlight">24</i>&nbsp;import com.fasterxml.jackson.databind.ObjectMapper;
+<i class="no-highlight">25</i>&nbsp;import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+<i class="no-highlight">26</i>&nbsp;import com.github.fge.jackson.JacksonUtils;
+<i class="no-highlight">27</i>&nbsp;import com.github.fge.jsonpatch.JsonPatch;
+<i class="no-highlight">28</i>&nbsp;import com.github.fge.jsonpatch.JsonPatchException;
+<i class="no-highlight">29</i>&nbsp;import com.github.fge.jsonpatch.JsonPatchMessages;
+<i class="no-highlight">30</i>&nbsp;import com.github.fge.jsonpatch.Patch;
+<i class="no-highlight">31</i>&nbsp;import com.github.fge.msgsimple.bundle.MessageBundle;
+<i class="no-highlight">32</i>&nbsp;import com.github.fge.msgsimple.load.MessageBundles;
+<i class="no-highlight">33</i>&nbsp;
+<i class="no-highlight">34</i>&nbsp;import javax.annotation.ParametersAreNonnullByDefault;
+<i class="no-highlight">35</i>&nbsp;import java.io.IOException;
+<i class="no-highlight">36</i>&nbsp;
+<i class="no-highlight">37</i>&nbsp;/**
+<i class="no-highlight">38</i>&nbsp; * Implementation of JSON Merge Patch (RFC 7386)
+<i class="no-highlight">39</i>&nbsp; *
+<i class="no-highlight">40</i>&nbsp; * &lt;p&gt;&lt;a href=&quot;http://tools.ietf.org/html/rfc7386&quot;&gt;JSON Merge Patch&lt;/a&gt; is a
+<i class="no-highlight">41</i>&nbsp; * &quot;toned down&quot; version of JSON Patch. However, it covers a very large number of
+<i class="no-highlight">42</i>&nbsp; * use cases for JSON value modifications; its focus is mostly on patching
+<i class="no-highlight">43</i>&nbsp; * JSON Objects, which are by far the most common type of JSON texts exchanged
+<i class="no-highlight">44</i>&nbsp; * on the Internet.&lt;/p&gt;
+<i class="no-highlight">45</i>&nbsp; *
+<i class="no-highlight">46</i>&nbsp; * &lt;p&gt;Applying a JSON Merge Patch is defined by a single, pseudo code function
+<i class="no-highlight">47</i>&nbsp; * as follows (quoted from the RFC; indentation fixed):&lt;/p&gt;
+<i class="no-highlight">48</i>&nbsp; *
+<i class="no-highlight">49</i>&nbsp; * &lt;pre&gt;
+<i class="no-highlight">50</i>&nbsp; *     define MergePatch(Target, Patch):
+<i class="no-highlight">51</i>&nbsp; *         if Patch is an Object:
+<i class="no-highlight">52</i>&nbsp; *             if Target is not an Object:
+<i class="no-highlight">53</i>&nbsp; *                 Target = {} # Ignore the contents and set it to an empty Object
+<i class="no-highlight">54</i>&nbsp; *             for each Name/Value pair in Patch:
+<i class="no-highlight">55</i>&nbsp; *                 if Value is null:
+<i class="no-highlight">56</i>&nbsp; *                     if Name exists in Target:
+<i class="no-highlight">57</i>&nbsp; *                         remove the Name/Value pair from Target
+<i class="no-highlight">58</i>&nbsp; *                 else:
+<i class="no-highlight">59</i>&nbsp; *                     Target[Name] = MergePatch(Target[Name], Value)
+<i class="no-highlight">60</i>&nbsp; *             return Target
+<i class="no-highlight">61</i>&nbsp; *         else:
+<i class="no-highlight">62</i>&nbsp; *             return Patch
+<i class="no-highlight">63</i>&nbsp; * &lt;/pre&gt;
+<i class="no-highlight">64</i>&nbsp; */
+<i class="no-highlight">65</i>&nbsp;@ParametersAreNonnullByDefault
+<i class="no-highlight">66</i>&nbsp;@JsonDeserialize(using = JsonMergePatchDeserializer.class)
+<b class="nc"><i class="no-highlight">67</i>&nbsp;public abstract class JsonMergePatch</b>
+<i class="no-highlight">68</i>&nbsp;    implements JsonSerializable, Patch
+<i class="no-highlight">69</i>&nbsp;{
+<b class="nc"><i class="no-highlight">70</i>&nbsp;    private static final ObjectMapper MAPPER = JacksonUtils.newMapper();</b>
+<b class="nc"><i class="no-highlight">71</i>&nbsp;    protected static final MessageBundle BUNDLE</b>
+<b class="nc"><i class="no-highlight">72</i>&nbsp;        = MessageBundles.getBundle(JsonPatchMessages.class);</b>
+<i class="no-highlight">73</i>&nbsp;
+<i class="no-highlight">74</i>&nbsp;    /**
+<i class="no-highlight">75</i>&nbsp;     * Build an instance from a JSON input
+<i class="no-highlight">76</i>&nbsp;     *
+<i class="no-highlight">77</i>&nbsp;     * @param node the input
+<i class="no-highlight">78</i>&nbsp;     * @return a JSON Merge Patch instance
+<i class="no-highlight">79</i>&nbsp;     * @throws JsonPatchException failed to deserialize
+<i class="no-highlight">80</i>&nbsp;     * @throws NullPointerException node is null
+<i class="no-highlight">81</i>&nbsp;     */
+<i class="no-highlight">82</i>&nbsp;    public static JsonMergePatch fromJson(final JsonNode node)
+<i class="no-highlight">83</i>&nbsp;        throws JsonPatchException
+<i class="no-highlight">84</i>&nbsp;    {
+<b class="nc"><i class="no-highlight">85</i>&nbsp;        BUNDLE.checkNotNull(node, &quot;jsonPatch.nullInput&quot;);</b>
+<i class="no-highlight">86</i>&nbsp;        try {
+<b class="nc"><i class="no-highlight">87</i>&nbsp;            return MAPPER.readValue(node.traverse(), JsonMergePatch.class);</b>
+<b class="nc"><i class="no-highlight">88</i>&nbsp;        } catch (IOException e) {</b>
+<b class="nc"><i class="no-highlight">89</i>&nbsp;            throw new JsonPatchException(</b>
+<b class="nc"><i class="no-highlight">90</i>&nbsp;                BUNDLE.getMessage(&quot;jsonPatch.deserFailed&quot;), e);</b>
+<i class="no-highlight">91</i>&nbsp;        }
+<i class="no-highlight">92</i>&nbsp;    }
+<i class="no-highlight">93</i>&nbsp;
+<i class="no-highlight">94</i>&nbsp;    /**
+<i class="no-highlight">95</i>&nbsp;     * Apply the patch to a given JSON value
+<i class="no-highlight">96</i>&nbsp;     *
+<i class="no-highlight">97</i>&nbsp;     * @param input the value to patch
+<i class="no-highlight">98</i>&nbsp;     * @return the patched value
+<i class="no-highlight">99</i>&nbsp;     * @throws JsonPatchException never thrown; only for consistency with
+<i class="no-highlight">100</i>&nbsp;     * {@link JsonPatch}
+<i class="no-highlight">101</i>&nbsp;     * @throws NullPointerException value is null
+<i class="no-highlight">102</i>&nbsp;     */
+<i class="no-highlight">103</i>&nbsp;    @Override
+<i class="no-highlight">104</i>&nbsp;    public abstract JsonNode apply(final JsonNode input)
+<i class="no-highlight">105</i>&nbsp;        throws JsonPatchException;
+<i class="no-highlight">106</i>&nbsp;}
+</div>
+</pre>
+</div>
+
+<script type="text/javascript">
+(function() {
+    var msie = false, msie9 = false;
+    /*@cc_on
+      msie = true;
+      @if (@_jscript_version >= 9)
+        msie9 = true;
+      @end
+    @*/
+
+    if (!msie || msie && msie9) {
+        var codeBlock = document.getElementById('sourceCode');
+
+        if (codeBlock) {
+            hljs.highlightBlock(codeBlock);
+        }
+    }
+})();
+</script>
+
+<div class="footer">
+    
+    <div style="float:right;">generated on 2023-01-18 17:01</div>
+</div>
+</body>
+</html>
